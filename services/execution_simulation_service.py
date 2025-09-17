@@ -9,7 +9,7 @@ from models import (
     Project, Task, AgentType, TaskStatus,
     AgentExecutionRequest, AgentExecutionResponse
 )
-from services.openai_service import OpenAIService
+from services.llm_factory_service import LLMFactoryService
 from agents import (
     PlannerAgent, AnalyzerAgent, DeveloperAgent, 
     TesterAgent, ReviewerAgent, CoordinatorAgent
@@ -20,7 +20,7 @@ class ExecutionSimulationService:
     """Service for simulating autonomous execution of tasks across multiple agents."""
     
     def __init__(self):
-        self.openai_service = OpenAIService()
+        self.llm_service = LLMFactoryService()
         self.agents = {
             AgentType.PLANNER: PlannerAgent(),
             AgentType.ANALYZER: AnalyzerAgent(),
@@ -218,7 +218,7 @@ class ExecutionSimulationService:
                 for agent_type, agent in self.agents.items()
             ]
             
-            suggestion = await self.openai_service.suggest_agent_assignment(
+            suggestion = await self.llm_service.suggest_agent_assignment(
                 {
                     "title": task.title,
                     "description": task.description,

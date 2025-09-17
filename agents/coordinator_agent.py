@@ -7,7 +7,7 @@ import uuid
 
 from .base_agent import BaseAgent
 from models import Task, AgentType, TaskStatus, Project
-from services.openai_service import OpenAIService
+from services.llm_factory_service import LLMFactoryService
 
 
 class CoordinatorAgent(BaseAgent):
@@ -19,7 +19,7 @@ class CoordinatorAgent(BaseAgent):
             name="Workflow Coordinator",
             description="Orchestrates multi-agent workflows, manages task dependencies, and coordinates execution"
         )
-        self.openai_service = OpenAIService()
+        self.llm_service = LLMFactoryService()
         self.agent_registry = {}
         self.workflow_state = {}
     
@@ -76,7 +76,7 @@ class CoordinatorAgent(BaseAgent):
         orchestration_prompt = self._build_orchestration_prompt(task, context)
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=orchestration_prompt,
                 max_tokens=3000,
                 temperature=0.2
@@ -109,7 +109,7 @@ class CoordinatorAgent(BaseAgent):
         coordination_prompt = self._build_coordination_prompt(task, context)
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=coordination_prompt,
                 max_tokens=2500,
                 temperature=0.2
@@ -139,7 +139,7 @@ class CoordinatorAgent(BaseAgent):
         dependency_prompt = self._build_dependency_prompt(task, context)
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=dependency_prompt,
                 max_tokens=2000,
                 temperature=0.1
@@ -168,7 +168,7 @@ class CoordinatorAgent(BaseAgent):
         monitoring_prompt = self._build_monitoring_prompt(task, context)
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=monitoring_prompt,
                 max_tokens=2000,
                 temperature=0.2
@@ -197,7 +197,7 @@ class CoordinatorAgent(BaseAgent):
         general_prompt = self._build_general_coordination_prompt(task, context)
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=general_prompt,
                 max_tokens=1500,
                 temperature=0.3
@@ -327,7 +327,7 @@ class CoordinatorAgent(BaseAgent):
         # Use AI to suggest agent assignment
         try:
             available_agents = [agent.to_agent_model() for agent in self.agent_registry.values()]
-            suggestion = await self.openai_service.suggest_agent_assignment(
+            suggestion = await self.llm_service.suggest_agent_assignment(
                 {
                     "title": task.title,
                     "description": task.description,

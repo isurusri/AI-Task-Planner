@@ -9,7 +9,7 @@ from models import (
     Task, Project, AgentType, TaskStatus, 
     TaskDecompositionRequest, TaskDecompositionResponse
 )
-from services.openai_service import OpenAIService
+from services.llm_factory_service import LLMFactoryService
 from agents import PlannerAgent, AnalyzerAgent, DeveloperAgent, TesterAgent, ReviewerAgent, CoordinatorAgent
 
 
@@ -17,7 +17,7 @@ class TaskDecompositionService:
     """Service for decomposing user input into detailed, actionable tasks."""
     
     def __init__(self):
-        self.openai_service = OpenAIService()
+        self.llm_service = LLMFactoryService()
         self.planner_agent = PlannerAgent()
         self.analyzer_agent = AnalyzerAgent()
         self.developer_agent = DeveloperAgent()
@@ -186,7 +186,7 @@ class TaskDecompositionService:
                 }
                 for agent in project.agents
             ]
-            suggestion = await self.openai_service.suggest_agent_assignment(
+            suggestion = await self.llm_service.suggest_agent_assignment(
                 {
                     "title": task.title,
                     "description": task.description,

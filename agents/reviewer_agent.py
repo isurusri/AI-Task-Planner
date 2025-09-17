@@ -6,7 +6,7 @@ from datetime import datetime
 
 from .base_agent import BaseAgent
 from models import Task, AgentType, TaskStatus
-from services.openai_service import OpenAIService
+from services.llm_factory_service import LLMFactoryService
 
 
 class ReviewerAgent(BaseAgent):
@@ -18,7 +18,7 @@ class ReviewerAgent(BaseAgent):
             name="Code Reviewer",
             description="Reviews code, assesses quality, and provides feedback for improvements"
         )
-        self.openai_service = OpenAIService()
+        self.llm_service = LLMFactoryService()
     
     def get_capabilities(self) -> List[str]:
         """Return reviewer agent capabilities."""
@@ -73,7 +73,7 @@ class ReviewerAgent(BaseAgent):
         review_prompt = self._build_code_review_prompt(task, context)
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=review_prompt,
                 max_tokens=3000,
                 temperature=0.1  # Low temperature for consistent reviews
@@ -109,7 +109,7 @@ class ReviewerAgent(BaseAgent):
         quality_prompt = self._build_quality_assessment_prompt(task, context)
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=quality_prompt,
                 max_tokens=2500,
                 temperature=0.2
@@ -141,7 +141,7 @@ class ReviewerAgent(BaseAgent):
         security_prompt = self._build_security_review_prompt(task, context)
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=security_prompt,
                 max_tokens=2000,
                 temperature=0.1
@@ -173,7 +173,7 @@ class ReviewerAgent(BaseAgent):
         arch_prompt = self._build_architecture_review_prompt(task, context)
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=arch_prompt,
                 max_tokens=2500,
                 temperature=0.2
@@ -204,7 +204,7 @@ class ReviewerAgent(BaseAgent):
         general_prompt = self._build_general_review_prompt(task, context)
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=general_prompt,
                 max_tokens=1500,
                 temperature=0.3

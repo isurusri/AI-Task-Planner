@@ -6,9 +6,10 @@ import openai
 from openai import AsyncOpenAI
 
 from config import settings
+from .llm_service import OpenAIService as BaseOpenAIService
 
 
-class OpenAIService:
+class OpenAIService(BaseOpenAIService):
     """Service for interacting with OpenAI API."""
     
     def __init__(self):

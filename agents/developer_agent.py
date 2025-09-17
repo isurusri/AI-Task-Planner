@@ -6,7 +6,7 @@ from datetime import datetime
 
 from .base_agent import BaseAgent
 from models import Task, AgentType, TaskStatus
-from services.openai_service import OpenAIService
+from services.llm_factory_service import LLMFactoryService
 
 
 class DeveloperAgent(BaseAgent):
@@ -18,7 +18,7 @@ class DeveloperAgent(BaseAgent):
             name="Code Developer",
             description="Implements features, writes code, and handles technical implementation tasks"
         )
-        self.openai_service = OpenAIService()
+        self.llm_service = LLMFactoryService()
     
     def get_capabilities(self) -> List[str]:
         """Return developer agent capabilities."""
@@ -73,7 +73,7 @@ class DeveloperAgent(BaseAgent):
         implementation_prompt = self._build_implementation_prompt(task, context)
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=implementation_prompt,
                 max_tokens=3000,
                 temperature=0.1  # Very low temperature for code generation
@@ -108,7 +108,7 @@ class DeveloperAgent(BaseAgent):
         feature_prompt = self._build_feature_development_prompt(task, context)
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=feature_prompt,
                 max_tokens=2500,
                 temperature=0.2
@@ -138,7 +138,7 @@ class DeveloperAgent(BaseAgent):
         bug_prompt = self._build_bug_fixing_prompt(task, context)
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=bug_prompt,
                 max_tokens=2000,
                 temperature=0.1
@@ -167,7 +167,7 @@ class DeveloperAgent(BaseAgent):
         refactor_prompt = self._build_refactoring_prompt(task, context)
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=refactor_prompt,
                 max_tokens=2000,
                 temperature=0.2
@@ -196,7 +196,7 @@ class DeveloperAgent(BaseAgent):
         general_prompt = self._build_general_development_prompt(task, context)
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=general_prompt,
                 max_tokens=2000,
                 temperature=0.3

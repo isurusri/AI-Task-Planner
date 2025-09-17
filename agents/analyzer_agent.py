@@ -6,7 +6,7 @@ from datetime import datetime
 
 from .base_agent import BaseAgent
 from models import Task, AgentType, TaskStatus
-from services.openai_service import OpenAIService
+from services.llm_factory_service import LLMFactoryService
 
 
 class AnalyzerAgent(BaseAgent):
@@ -18,7 +18,7 @@ class AnalyzerAgent(BaseAgent):
             name="Technical Analyzer",
             description="Analyzes requirements, assesses technical feasibility, and identifies potential issues"
         )
-        self.openai_service = OpenAIService()
+        self.llm_service = LLMFactoryService()
     
     def get_capabilities(self) -> List[str]:
         """Return analyzer agent capabilities."""
@@ -39,7 +39,7 @@ class AnalyzerAgent(BaseAgent):
         analysis_prompt = self._build_analysis_prompt(task, context)
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=analysis_prompt,
                 max_tokens=2000,
                 temperature=0.2  # Lower temperature for more consistent analysis
@@ -190,7 +190,7 @@ Provide recommendations for improvement.
 """
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=prompt,
                 max_tokens=1500,
                 temperature=0.3
@@ -230,7 +230,7 @@ Provide validation score and recommendations.
 """
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=prompt,
                 max_tokens=1000,
                 temperature=0.2

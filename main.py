@@ -15,22 +15,25 @@ from models import (
     Project
 )
 from services import TaskDecompositionService, ExecutionSimulationService
+from services.llm_factory_service import LLMFactoryService
 from config import settings
 
 
 # Global services
 task_decomposition_service = None
 execution_simulation_service = None
+llm_factory_service = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan manager."""
-    global task_decomposition_service, execution_simulation_service
+    global task_decomposition_service, execution_simulation_service, llm_factory_service
     
     # Initialize services
     task_decomposition_service = TaskDecompositionService()
     execution_simulation_service = ExecutionSimulationService()
+    llm_factory_service = LLMFactoryService()
     
     print("AI Task Planner services initialized")
     
@@ -108,6 +111,129 @@ async def health_check():
             "execution_simulation": execution_simulation_service is not None
         }
     }
+
+
+@app.get("/api/llm/info")
+async def get_llm_info():
+    """Get information about the current LLM provider."""
+    if not llm_factory_service:
+        raise HTTPException(status_code=500, detail="LLM service not initialized")
+    
+    return llm_factory_service.get_provider_info()
+
+
+@app.post("/api/llm/test")
+async def test_llm():
+    """Test the current LLM provider."""
+    if not llm_factory_service:
+        raise HTTPException(status_code=500, detail="LLM service not initialized")
+    
+    try:
+        response = await llm_factory_service.generate_completion(
+            prompt="Hello! Please respond with 'LLM test successful' to confirm the connection is working.",
+            max_tokens=50,
+            temperature=0.1
+        )
+        
+        return {
+            "status": "success",
+            "response": response,
+            "provider": llm_factory_service.get_provider_info()
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e),
+            "provider": llm_factory_service.get_provider_info()
+        }
+
+
+@app.post("/api/llm/switch")
+async def switch_llm_provider(request: dict):
+    """Switch LLM provider and model."""
+    global llm_factory_service
+    
+    if not llm_factory_service:
+        raise HTTPException(status_code=500, detail="LLM service not initialized")
+    
+    try:
+        provider = request.get("provider", "openai")
+        model = request.get("model", "")
+        api_key = request.get("api_key", "")
+        
+        # Update settings
+        if provider == "openai":
+            settings.llm_provider = "openai"
+            settings.openai_model = model or "gpt-4"
+            if api_key:
+                settings.openai_api_key = api_key
+        else:
+            settings.llm_provider = "ollama"
+            settings.ollama_model = model or "llama2:latest"
+        
+        # Reinitialize the LLM service
+        llm_factory_service = LLMFactoryService()
+        
+        return {
+            "status": "success",
+            "message": f"Switched to {provider} with model {model}",
+            "provider": llm_factory_service.get_provider_info()
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e)
+        }
+
+
+@app.get("/api/llm/models")
+async def get_available_models():
+    """Get available models for each provider."""
+    return {
+        "openai": [
+            {"id": "gpt-4", "name": "GPT-4", "description": "Most capable model"},
+            {"id": "gpt-4-turbo", "name": "GPT-4 Turbo", "description": "Faster GPT-4"},
+            {"id": "gpt-3.5-turbo", "name": "GPT-3.5 Turbo", "description": "Fast and efficient"},
+            {"id": "gpt-3.5-turbo-16k", "name": "GPT-3.5 Turbo 16K", "description": "Extended context"}
+        ],
+        "ollama": [
+            {"id": "llama2:latest", "name": "Llama2", "description": "Meta's Llama2 model"},
+            {"id": "codellama:latest", "name": "CodeLlama", "description": "Code-specialized Llama"},
+            {"id": "mistral:latest", "name": "Mistral", "description": "Efficient open-source model"},
+            {"id": "llama2:7b", "name": "Llama2 7B", "description": "Smaller Llama2 model"},
+            {"id": "llama2:13b", "name": "Llama2 13B", "description": "Larger Llama2 model"}
+        ]
+    }
+
+
+@app.post("/api/llm/validate-key")
+async def validate_api_key(request: dict):
+    """Validate OpenAI API key."""
+    api_key = request.get("api_key", "")
+    if not api_key:
+        return {"valid": False, "error": "API key is required"}
+    
+    try:
+        # Test the API key with a simple request
+        from openai import AsyncOpenAI
+        client = AsyncOpenAI(api_key=api_key)
+        
+        # Make a simple test request
+        response = await client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": "test"}],
+            max_tokens=1
+        )
+        
+        return {
+            "valid": True,
+            "message": "API key is valid"
+        }
+    except Exception as e:
+        return {
+            "valid": False,
+            "error": str(e)
+        }
 
 
 @app.get("/api/agents")

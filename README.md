@@ -10,6 +10,8 @@ A sophisticated multi-agent planning tool that uses AI to decompose feature requ
 - **Modern Web Interface**: Beautiful, responsive UI with real-time updates
 - **Task Dependency Management**: Intelligent task ordering and dependency resolution
 - **Quality Assessment**: Built-in quality metrics and recommendations
+- **Local LLM Support**: Run with Ollama (Llama2, CodeLlama, Mistral) for privacy and cost savings
+- **OpenAI Integration**: Use GPT-4 and other OpenAI models
 
 ## 🤖 AI Agents
 
@@ -61,10 +63,27 @@ A sophisticated multi-agent planning tool that uses AI to decompose feature requ
 
 ### Setup
 
+#### Quick Start (Recommended)
+
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
    cd ai-task-planner
+   ```
+
+2. **Run the setup script**
+   ```bash
+   ./activate_and_run.sh
+   ```
+
+#### Manual Setup
+
+#### Option 1: OpenAI (Cloud-based)
+
+1. **Create virtual environment**
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
    ```
 
 2. **Install dependencies**
@@ -80,11 +99,50 @@ A sophisticated multi-agent planning tool that uses AI to decompose feature requ
 
 4. **Run the application**
    ```bash
-   python main.py
+   python run.py
    ```
 
-5. **Access the web interface**
-   Open your browser and navigate to `http://localhost:8000`
+#### Option 2: Ollama (Local LLM)
+
+1. **Install Ollama**
+   ```bash
+   curl -fsSL https://ollama.ai/install.sh | sh
+   ```
+
+2. **Install a model**
+   ```bash
+   ollama pull llama2:latest
+   ```
+
+3. **Start Ollama**
+   ```bash
+   ollama serve
+   ```
+
+4. **Create virtual environment**
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   ```
+
+5. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+6. **Configure for Ollama**
+   ```bash
+   echo "LLM_PROVIDER=ollama" >> .env
+   echo "OLLAMA_MODEL=llama2:latest" >> .env
+   ```
+
+7. **Run the application**
+   ```bash
+   python run.py
+   ```
+
+#### Access the web interface
+Open your browser and navigate to `http://localhost:8000`
 
 ## 🔧 Configuration
 

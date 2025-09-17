@@ -6,7 +6,7 @@ from datetime import datetime
 
 from .base_agent import BaseAgent
 from models import Task, AgentType, TaskStatus
-from services.openai_service import OpenAIService
+from services.llm_factory_service import LLMFactoryService
 
 
 class TesterAgent(BaseAgent):
@@ -18,7 +18,7 @@ class TesterAgent(BaseAgent):
             name="Quality Tester",
             description="Creates test cases, performs quality assurance, and validates implementations"
         )
-        self.openai_service = OpenAIService()
+        self.llm_service = LLMFactoryService()
     
     def get_capabilities(self) -> List[str]:
         """Return tester agent capabilities."""
@@ -73,7 +73,7 @@ class TesterAgent(BaseAgent):
         test_prompt = self._build_test_case_prompt(task, context)
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=test_prompt,
                 max_tokens=2500,
                 temperature=0.2
@@ -106,7 +106,7 @@ class TesterAgent(BaseAgent):
         execution_prompt = self._build_test_execution_prompt(task, context)
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=execution_prompt,
                 max_tokens=2000,
                 temperature=0.1
@@ -135,7 +135,7 @@ class TesterAgent(BaseAgent):
         bug_prompt = self._build_bug_investigation_prompt(task, context)
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=bug_prompt,
                 max_tokens=2000,
                 temperature=0.2
@@ -164,7 +164,7 @@ class TesterAgent(BaseAgent):
         perf_prompt = self._build_performance_testing_prompt(task, context)
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=perf_prompt,
                 max_tokens=2000,
                 temperature=0.2
@@ -193,7 +193,7 @@ class TesterAgent(BaseAgent):
         general_prompt = self._build_general_testing_prompt(task, context)
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=general_prompt,
                 max_tokens=1500,
                 temperature=0.3

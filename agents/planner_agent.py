@@ -6,7 +6,7 @@ from datetime import datetime
 
 from .base_agent import BaseAgent
 from models import Task, AgentType, TaskStatus
-from services.openai_service import OpenAIService
+from services.llm_factory_service import LLMFactoryService
 
 
 class PlannerAgent(BaseAgent):
@@ -18,7 +18,7 @@ class PlannerAgent(BaseAgent):
             name="Strategic Planner",
             description="Decomposes high-level requirements into detailed, actionable tasks"
         )
-        self.openai_service = OpenAIService()
+        self.llm_service = LLMFactoryService()
     
     def get_capabilities(self) -> List[str]:
         """Return planner agent capabilities."""
@@ -39,7 +39,7 @@ class PlannerAgent(BaseAgent):
         decomposition_prompt = self._build_decomposition_prompt(task, context)
         
         try:
-            response = await self.openai_service.generate_completion(
+            response = await self.llm_service.generate_completion(
                 prompt=decomposition_prompt,
                 max_tokens=1500,
                 temperature=0.3  # Lower temperature for more consistent planning
